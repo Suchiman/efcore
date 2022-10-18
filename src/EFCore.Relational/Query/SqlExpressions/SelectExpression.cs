@@ -1570,6 +1570,12 @@ public sealed partial class SelectExpression : TableExpressionBase
             _projectionMapping.Clear();
             _projectionMapping = result;
 
+            var useAliasVisitor = new UseAliasExpressionVisitor(this);
+            for (var i = 0; i < _orderings.Count; i++)
+            {
+                _orderings[i] = useAliasVisitor.VisitAndConvert(_orderings[i], nameof(ApplyProjection));
+            }
+
             return shaperExpression;
         }
 

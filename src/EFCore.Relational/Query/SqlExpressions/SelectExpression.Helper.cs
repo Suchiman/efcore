@@ -154,6 +154,29 @@ public sealed partial class SelectExpression
         }
     }
 
+    private sealed class UseAliasExpressionVisitor : ExpressionVisitor
+    {
+        private readonly SelectExpression _queryExpression;
+
+        public UseAliasExpressionVisitor(SelectExpression queryExpression)
+        {
+            _queryExpression = queryExpression;
+        }
+
+        [return: NotNullIfNotNull("expression")]
+        public override Expression? Visit(Expression? expression)
+        {
+            foreach (var x in _queryExpression.Projection)
+            {
+                if (x.Expression.Equals(expression))
+                {
+                    return new SqlFragmentExpression(x.Alias);
+                }
+            }
+            return base.Visit(expression);
+        }
+    }
+
     private sealed class SqlRemappingVisitor : ExpressionVisitor
     {
         private readonly SelectExpression _subquery;
